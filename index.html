@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>أحسبلي - المساعد المكتبي</title>
+    <style>
+        body {
+            background: url('https://source.unsplash.com/1600x900/?technology,dark') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Cairo', sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px; width: 400px; color: white; text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        input {
+            width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px;
+            border: none; background: rgba(255, 255, 255, 0.2); color: white; outline: none;
+        }
+        button {
+            width: 100%; padding: 12px; border-radius: 10px; border: none;
+            background: #00d2ff; color: white; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        button:hover { background: #3a7bd5; transform: translateY(-3px); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- واجهة الدخول -->
+    <div id="loginPage" class="glass">
+        <h1>أحسبلي</h1>
+        <input type="text" id="userIn" placeholder="اسم المستخدم">
+        <input type="password" id="passIn" placeholder="كلمة المرور">
+        <button onclick="login()">دخول</button>
+        <p onclick="showSignup()" style="cursor:pointer; font-size: 13px;">ليس لديك حساب؟ إنشاء حساب</p>
+    </div>
+
+    <!-- واجهة التسجيل -->
+    <div id="signupPage" class="glass hidden">
+        <h2>إنشاء حساب جديد</h2>
+        <input type="text" id="regName" placeholder="الاسم الثلاثي">
+        <input type="text" id="regLib" placeholder="اسم المكتبة">
+        <input type="text" id="regPhone" placeholder="رقم الهاتف (تليجرام)">
+        <input type="text" id="regAddr" placeholder="عنوان المكتبة">
+        <button onclick="sendData()">إرسال وتفعيل</button>
+        <p onclick="showLogin()" style="cursor:pointer;">رجوع لتسجيل الدخول</p>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdMAIaZX91q7NQT6nHci660HPHmQikcBfs3I56q0k9WyMgcN_3SkjVA2dWfJCPz6DC/exec";
+
+        function showSignup() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('signupPage').classList.remove('hidden');
+        }
+
+        function sendData() {
+            const data = {
+                action: "signup",
+                name: document.getElementById('regName').value,
+                library: document.getElementById('regLib').value,
+                phone: document.getElementById('regPhone').value,
+                address: document.getElementById('regAddr').value
+            };
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(data)
+            }).then(() => {
+                alert("تم إرسال معلوماتك! تواصل مع البوت لتسلم الاشتراك.");
+                window.location.href = "https://t.me/mb4x_bot";
+            });
+        }
+    </script>
+</body>
+</html>
