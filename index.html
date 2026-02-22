@@ -3,171 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>برنامج أحسبلي</title>
-    <!-- استيراد خط كاييرو من جوجل -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    
+    <title>أحسبلي | المساعد المكتبي الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.2);
+            --accent: #00d2ff;
+        }
+
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        
+
         body {
-            /* خلفية احترافية متدرجة لضمان ظهور العناصر الشفافة */
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            height: 100vh;
             margin: 0;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background-attachment: fixed;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            color: white;
             overflow: hidden;
         }
 
-        .glass-container {
-            background: rgba(255, 255, 255, 0.1);
+        /* التصميم الزجاجي */
+        .glass-card {
+            background: var(--glass);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 40px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.8s ease-in-out;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            width: 95%;
+            max-width: 900px;
+            height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.6s ease-out;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* الشاشات */
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        h1, h2 { text-align: center; color: var(--accent); }
+
+        /* الحقول والأزرار */
+        input, select {
+            width: 100%; padding: 12px; margin: 10px 0;
+            border-radius: 10px; border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05); color: white; outline: none;
         }
 
-        h1, h2 { color: #ffffff; margin-bottom: 25px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-
-        input {
-            width: 100%;
-            padding: 12px 15px;
-            margin: 10px 0;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.4); /* حدود واضحة */
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-            transition: 0.3s;
+        button {
+            background: var(--accent); color: #000; border: none;
+            padding: 12px 25px; border-radius: 10px; cursor: pointer;
+            font-weight: bold; transition: 0.3s; width: 100%; margin-top: 10px;
         }
 
-        input::placeholder { color: rgba(255, 255, 255, 0.7); }
+        button:hover { transform: scale(1.02); background: white; }
 
-        input:focus {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #00d2ff;
-            box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        /* القائمة الجانبية (في الواجهة الرئيسية) */
+        .main-layout { display: grid; grid-template-columns: 200px 1fr; gap: 20px; height: 100%; }
+        .sidebar { border-left: 1px solid var(--border); padding-left: 15px; }
+        .nav-item { 
+            padding: 10px; cursor: pointer; border-radius: 8px; margin-bottom: 5px; 
+            transition: 0.3s; text-align: center; background: rgba(255,255,255,0.05);
+        }
+        .nav-item:hover, .nav-item.active { background: var(--accent); color: black; }
+
+        /* الحاسبة */
+        .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        /* الإعدادات والمميزات (التصنيف) */
+        .feature-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; border-bottom: 1px solid var(--border);
         }
 
-        .btn-main {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
-            border: none;
-            border-radius: 12px;
-            background: #00d2ff;
-            color: #000;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        /* ستايل الوصل */
+        #invoice-print {
+            background: white; color: black; padding: 20px; border-radius: 5px;
+            display: none; width: 300px; margin: auto;
         }
 
-        .btn-main:hover {
-            background: #fff;
-            transform: scale(1.02);
+        /* لوجو الشركة */
+        .logo-box {
+            width: 80px; height: 80px; border: 2px dashed var(--accent);
+            border-radius: 50%; margin: 0 auto 20px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
+        .logo-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        .links {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-        }
+        /* Switch Toggle */
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        input:checked + .slider { background-color: var(--accent); }
 
-        .links a { color: #00d2ff; text-decoration: none; cursor: pointer; }
-        .links a:hover { text-decoration: underline; }
-
-        .hidden { display: none; }
-
-        /* ستايل زر التذكر */
-        .remember-me {
-            display: flex;
-            align-items: center;
-            color: white;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .remember-me input { width: auto; margin-left: 10px; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- واجهة تسجيل الدخول -->
-    <div id="loginBox" class="glass-container">
-        <h1>أحسبلي</h1>
-        <input type="text" id="userEmail" placeholder="اسم المستخدم أو الهاتف">
-        <input type="password" id="userPass" placeholder="كلمة المرور">
-        
-        <div class="remember-me">
-            <input type="checkbox" id="remember">
-            <label for="remember">تذكرني</label>
+    <div class="glass-card">
+        <!-- صفحة تسجيل الدخول -->
+        <div id="login-page" class="page active">
+            <h1>أحسبلي</h1>
+            <input type="text" id="login-user" placeholder="اسم المستخدم / الهاتف">
+            <input type="password" id="login-pass" placeholder="كلمة المرور">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <input type="checkbox" id="rememberMe" style="width:auto;"> تذكرني
+            </div>
+            <button onclick="login()">دخول</button>
+            <button style="background:none; color:white; font-size:12px;" onclick="switchPage('signup-page')">إنشاء حساب جديد</button>
         </div>
 
-        <button class="btn-main" onclick="handleLogin()">دخول</button>
+        <!-- صفحة إنشاء حساب -->
+        <div id="signup-page" class="page">
+            <h2>إنشاء حساب</h2>
+            <input type="text" id="reg-name" placeholder="الاسم الثلاثي">
+            <input type="text" id="reg-lib" placeholder="اسم المكتبة">
+            <input type="text" id="reg-phone" placeholder="رقم الهاتف (تليجرام)">
+            <input type="text" id="reg-addr" placeholder="عنوان المكتبة">
+            <button onclick="register()">إرسال وتفعيل الحساب</button>
+            <button style="background:none; color:white;" onclick="switchPage('login-page')">رجوع</button>
+        </div>
 
-        <div class="links">
-            <a onclick="showPage('signupBox')">إنشاء حساب</a>
-            <a onclick="alert('تواصل مع الإدارة لاستعادة الحساب')">نسيت كلمة المرور؟</a>
+        <!-- الواجهة الرئيسية -->
+        <div id="main-page" class="page">
+            <div class="main-layout">
+                <div class="sidebar">
+                    <div class="logo-box" onclick="document.getElementById('logoInput').click()">
+                        <img id="displayLogo" src="" style="display:none;">
+                        <span id="logoText">لوجو</span>
+                    </div>
+                    <input type="file" id="logoInput" hidden onchange="changeLogo(event)">
+                    <div class="nav-item active" onclick="showSection('calc')">الحاسبة</div>
+                    <div class="nav-item" onclick="showSection('products')">المواد</div>
+                    <div class="nav-item" onclick="showSection('reports')">التقارير</div>
+                    <div class="nav-item" onclick="showSection('telegram')">تليجرام</div>
+                    <div class="nav-item" onclick="showSection('settings')">⚙️ الإعدادات</div>
+                    <button onclick="location.reload()" style="background:red; color:white; margin-top:20px;">خروج</button>
+                </div>
+
+                <div class="content">
+                    <!-- قسم الحاسبة -->
+                    <div id="sec-calc" class="section">
+                        <h2 id="libDisplayName">اسم المكتبة</h2>
+                        <input type="text" placeholder="اسم الملف (اختياري)">
+                        <div class="calc-grid">
+                            <input type="number" id="pageFrom" placeholder="من صفحة">
+                            <input type="number" id="pageTo" placeholder="إلى صفحة">
+                        </div>
+                        <input type="number" id="pageTotal" placeholder="أو عدد الصفحات الكلي">
+                        <div class="calc-grid">
+                            <input type="number" id="priceFixed" placeholder="السعر لكل صفحة" value="250">
+                            <input type="number" id="taxVal" placeholder="الضريبة">
+                        </div>
+                        <h3 id="finalResult">الإجمالي: 0</h3>
+                        <button onclick="calculate()">إحسب</button>
+                        <button onclick="printInvoice()">طباعة وصل 🖨️</button>
+                    </div>
+
+                    <!-- قسم تليجرام -->
+                    <div id="sec-telegram" class="section" style="display:none;">
+                        <h2>تحكم التليجرام</h2>
+                        <div class="feature-item"><span>الترحيب</span> <label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                        <div class="feature-item"><span>أسعار الملفات</span> <label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+                        <div class="feature-item"><span>الذكاء الاصطناعي</span> <label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                        <div class="feature-item"><span>خزن الرسائل</span> <input type="text" placeholder="ID الكروب" style="width:100px; margin:0;"></div>
+                        <div class="feature-item"><span>إذاعة</span> <input type="text" id="broadcastMsg" placeholder="الرسالة..."><button onclick="alert('جاري الإرسال')" style="width:auto; padding:5px;">بث</button></div>
+                    </div>
+
+                    <!-- قسم التقارير -->
+                    <div id="sec-reports" class="section" style="display:none;">
+                        <h2>التقارير التفصيلية</h2>
+                        <p id="reportDate">تاريخ الإنشاء: --/--/----</p>
+                        <div class="nav-item">عدد الفواتير: <span id="countInv">0</span></div>
+                        <div class="nav-item">إجمالي الصفحات: <span id="countPages">0</span></div>
+                    </div>
+
+                    <!-- قسم الإعدادات -->
+                    <div id="sec-settings" class="section" style="display:none;">
+                        <h2>الإعدادات العامة</h2>
+                        <input type="number" id="setPrice" placeholder="تعديل السعر الافتراضي">
+                        <button onclick="saveSettings()">حفظ الإعدادات</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- واجهة إنشاء الحساب -->
-    <div id="signupBox" class="glass-container hidden">
-        <h2>إنشاء حساب</h2>
-        <input type="text" id="regName" placeholder="الاسم الثلاثي">
-        <input type="text" id="regLib" placeholder="اسم المكتبة">
-        <input type="text" id="regPhone" placeholder="رقم الهاتف المرتبط بتليجرام">
-        <input type="text" id="regAddr" placeholder="عنوان المكتبة">
-        
-        <button class="btn-main" onclick="registerUser()">إرسال وتفعيل</button>
-        <div class="links">
-            <a onclick="showPage('loginBox')" style="width:100%; text-align:center;">لديك حساب؟ سجل دخول</a>
-        </div>
+    <!-- الوصل المخفي للطباعة -->
+    <div id="invoice-print">
+        <h2 id="invLibName">المكتبة</h2>
+        <hr>
+        <p id="invDate"></p>
+        <p id="invDetails"></p>
+        <h3 id="invTotal"></h3>
+        <p style="text-align:center; font-size:10px;">شكراً لتعاملكم معنا - أحسبلي</p>
     </div>
 
     <script>
-        // وظيفة التنقل بين الواجهات
-        function showPage(pageId) {
-            document.getElementById('loginBox').classList.add('hidden');
-            document.getElementById('signupBox').classList.add('hidden');
-            document.getElementById(pageId).classList.remove('hidden');
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwl5MHKCUXbPoXmCaXUCtED0qMaNTfexlvUQX3K1eDkOEz5Eft4-dG2h5Zr3yTJhugQ/exec";
+
+        // وظائف التنقل
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
         }
 
-        function handleLogin() {
-            // حالياً سننقله للواجهة الرئيسية (سنبرمجها في الخطوة القادمة)
-            alert("سيتم التحقق من بياناتك...");
+        function showSection(secId) {
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.getElementById('sec-' + secId).style.display = 'block';
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            event.target.classList.add('active');
         }
 
-        function registerUser() {
-            const name = document.getElementById('regName').value;
-            const phone = document.getElementById('regPhone').value;
+        // تسجيل الدخول
+        function login() {
+            const user = document.getElementById('login-user').value;
+            if(user) {
+                localStorage.setItem('userAccount', user);
+                document.getElementById('libDisplayName').innerText = "مكتبة " + (localStorage.getItem('libName') || user);
+                switchPage('main-page');
+            } else { alert("أدخل البيانات"); }
+        }
 
-            if(!name || !phone) {
-                alert("يرجى ملء البيانات الأساسية");
-                return;
-            }
+        // إنشاء حساب
+        function register() {
+            const data = {
+                action: "signup",
+                name: document.getElementById('reg-name').value,
+                library: document.getElementById('reg-lib').value,
+                phone: document.getElementById('reg-phone').value,
+                address: document.getElementById('reg-addr').value
+            };
 
-            // هنا نرسل البيانات لبوت التليجرام عبر رابط Google Script
-            alert("تم إرسال معلوماتك بنجاح. سيصلك رد من البوت خلال لحظات.");
-            // تحويل المستخدم للبوت
+            if(!data.name || !data.phone) return alert("املأ الحقول");
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(data)
+            });
+
+            localStorage.setItem('libName', data.library);
+            alert("تم إرسال طلبك! سيصلك اسم المستخدم وكلمة المرور عبر بوت تليجرام");
             window.location.href = "https://t.me/mb4x_bot";
         }
+
+        // تغيير اللوجو
+        function changeLogo(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const img = document.getElementById('displayLogo');
+                img.src = reader.result;
+                img.style.display = 'block';
+                document.getElementById('logoText').style.display = 'none';
+                localStorage.setItem('userLogo', reader.result);
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        // عمليات الحساب
+        let totalInvoices = 0;
+        let totalPagesCalc = 0;
+
+        function calculate() {
+            let pages = 0;
+            const from = parseInt(document.getElementById('pageFrom').value);
+            const to = parseInt(document.getElementById('pageTo').value);
+            const totalInput = parseInt(document.getElementById('pageTotal').value);
+
+            if (!isNaN(from) && !isNaN(to)) { pages = (to - from) + 1; }
+            else if (!isNaN(totalInput)) { pages = totalInput; }
+
+            const price = parseInt(document.getElementById('priceFixed').value);
+            const tax = parseInt(document.getElementById('taxVal').value) || 0;
+            const final = (pages * price) + tax;
+
+            document.getElementById('finalResult').innerText = "الإجمالي: " + final.toLocaleString() + " د.ع";
+            
+            // تحديث التقارير مؤقتاً
+            totalInvoices++;
+            totalPagesCalc += pages;
+            document.getElementById('countInv').innerText = totalInvoices;
+            document.getElementById('countPages').innerText = totalPagesCalc;
+        }
+
+        function printInvoice() {
+            const lib = localStorage.getItem('libName') || "مكتبتنا";
+            const result = document.getElementById('finalResult').innerText;
+            
+            document.getElementById('invLibName').innerText = lib;
+            document.getElementById('invDate').innerText = "التاريخ: " + new Date().toLocaleString();
+            document.getElementById('invTotal').innerText = result;
+
+            const printContent = document.getElementById('invoice-print').innerHTML;
+            const win = window.open('', '', 'width=400,height=600');
+            win.document.write('<html><body style="font-family:Cairo; text-align:center;">' + printContent + '</body></html>');
+            win.document.close();
+            win.print();
+        }
+
+        // عند التحميل
+        window.onload = () => {
+            if(localStorage.getItem('userLogo')) {
+                document.getElementById('displayLogo').src = localStorage.getItem('userLogo');
+                document.getElementById('displayLogo').style.display = 'block';
+                document.getElementById('logoText').style.display = 'none';
+            }
+            document.getElementById('reportDate').innerText = "تاريخ البدء: " + new Date().toLocaleDateString();
+        };
     </script>
 </body>
 </html>
