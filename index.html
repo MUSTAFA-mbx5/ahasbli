@@ -1,443 +1,308 @@
-var ADMIN_ID = "815444701";
-var ADMIN_TOKEN = "913904899:AAE0dPCF4LLLi82MOWEfDF7CkmoAYArt0Aw";
-
-function doPost(e) {
-  var contents = JSON.parse(e.postData.contents);
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
-
-  if (contents.action == "login") {
-    var data = sheet.getDataRange().getValues();
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][4] == contents.user && data[i][5] == contents.pass) {
-        var sess = "SID" + new Date().getTime();
-        sheet.getRange(i+1, 10).setValue(sess);
-        return ContentService.createTextOutput(JSON.stringify({status:"success", session:sess, libName:data[i][2]})).setMimeType(ContentService.MimeType.JSON);
-      }
-    }
-    return ContentService.createTextOutput(JSON.stringify({status:"error", msg:"بيانات خاطئة"})).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  if (contents.action == "checkSession") {
-    var data = sheet.getDataRange().getValues();
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][4] == contents.user) {
-        return ContentService.createTextOutput(data[i][9] == contents.session ? "valid" : "invalid");
-      }
-    }
-  }
-  
-  // كود الـ Signup يبقى كما هو في النسخ السابقة
-}
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أحسبلي | المساعد المكتبي الذكي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>أحسبلي | Neon Purple Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* --- المتغيرات والثيمات --- */
         :root {
-            --glass: rgba(255, 255, 255, 0.1);
-            --border: rgba(255, 255, 255, 0.2);
-            --accent: #00d2ff;
+            --bg-color: #0d0d0d;
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --neon-purple: #bc13fe;
+            --text-color: #ffffff;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+            --btn-3d: inset 2px 2px 5px rgba(255,255,255,0.1), inset -2px -2px 5px rgba(0,0,0,0.5);
         }
 
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        .light-theme {
+            --bg-color: #f0f2f5;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --neon-purple: #6c5ce7;
+            --text-color: #2d3436;
+            --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        }
+
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
         body {
             margin: 0;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            background-attachment: fixed;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
             overflow: hidden;
         }
 
+        /* --- خلفية متحركة نيون --- */
+        body::before {
+            content: ""; position: absolute; width: 300px; height: 300px;
+            background: var(--neon-purple); filter: blur(150px);
+            top: 10%; left: 10%; z-index: -1; opacity: 0.4;
+        }
+
+        /* --- زر تبديل الثيم (الكود الثالث) --- */
+        .theme-switch {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            --container_width: 3.7em; --container_height: 2em; --circle_diameter: 1.5em;
+            --sun_moon_rotate_relative_distance: -50%;
+        }
+        .theme-switch__checkbox { display: none; }
+        .theme-switch__container {
+            width: var(--container_width); height: var(--container_height);
+            background-color: #3a3a3a; border-radius: 2em; position: relative; cursor: pointer;
+            box-shadow: 0 0 10px var(--neon-purple); overflow: hidden;
+        }
+        .theme-switch__circle-container {
+            width: var(--circle_diameter); height: var(--circle_diameter); background-color: #fff;
+            border-radius: 50%; position: absolute; left: 0.25em; top: 0.25em; transition: 0.3s;
+        }
+        .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__circle-container {
+            left: calc(100% - var(--circle_diameter) - 0.25em);
+        }
+
+        /* --- حاوية الزجاج (Glass Container) --- */
         .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            width: 95%;
-            max-width: 900px;
-            height: 90vh;
-            overflow-y: auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            width: 95%; max-width: 900px; height: 85vh;
+            box-shadow: var(--shadow);
+            display: flex; flex-direction: column; overflow: hidden;
             position: relative;
         }
 
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .page { display: none; width: 100%; height: 100%; padding: 40px; }
+        .active { display: flex; flex-direction: column; justify-content: center; }
 
-        h1, h2 { text-align: center; color: var(--accent); }
-
-        input, select {
-            width: 100%; padding: 12px; margin: 10px 0;
-            border-radius: 10px; border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.05); color: white; outline: none;
+        /* --- استايل الفورم (الكود الثاني مطور) --- */
+        .form { display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: auto; }
+        #heading { font-size: 2em; font-weight: bold; color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple); margin-bottom: 20px; text-align: center; }
+        .field {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
+        .input-icon { fill: var(--neon-purple); width: 20px; }
+        .input-field { background: none; border: none; color: white; outline: none; width: 100%; font-size: 16px; }
+        .light-theme .input-field { color: #000; }
 
-        button {
-            background: var(--accent); color: #000; border: none;
-            padding: 12px 25px; border-radius: 10px; cursor: pointer;
-            font-weight: bold; transition: 0.3s; width: 100%; margin-top: 10px;
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .button1, .button2 {
+            flex: 1; padding: 12px; border-radius: 12px; border: none; cursor: pointer;
+            font-weight: bold; text-transform: uppercase;
+            box-shadow: var(--btn-3d); transition: 0.3s;
         }
+        .button1 { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); }
+        .button2 { background: rgba(255,255,255,0.1); color: var(--text-color); border: 1px solid var(--neon-purple); }
+        .button1:hover, .button2:hover { transform: translateY(-3px) scale(1.05); }
 
-        button:hover { transform: scale(1.01); background: white; }
+        .button3 { background: none; border: none; color: var(--neon-purple); cursor: pointer; margin-top: 10px; font-size: 12px; }
 
-        .main-layout { display: grid; grid-template-columns: 200px 1fr; gap: 20px; height: 100%; }
-        .sidebar { border-left: 1px solid var(--border); padding-left: 15px; }
-        
-        .nav-item { 
-            padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 8px; 
-            transition: 0.3s; text-align: center; background: rgba(255,255,255,0.05); font-size: 14px;
+        /* --- واجهة التطبيق الرئيسية (Dashboard) --- */
+        .dashboard { display: grid; grid-template-columns: 250px 1fr; height: 100%; }
+        .sidebar { background: rgba(0,0,0,0.3); padding: 20px; border-left: 1px solid rgba(255,255,255,0.05); }
+        .nav-link {
+            padding: 15px; margin-bottom: 10px; border-radius: 15px; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.02);
         }
-        .nav-item:hover, .nav-item.active { background: var(--accent); color: black; font-weight: bold; }
+        .nav-link:hover, .nav-link.active { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); }
 
-        .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        .feature-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px; border-bottom: 1px solid var(--border);
+        /* --- الحاسبة الاحترافية --- */
+        .calc-box { padding: 20px; flex: 1; overflow-y: auto; }
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        input[type="number"], input[type="text"] {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px; border-radius: 12px; color: var(--text-color); outline: none;
         }
+        input:focus { border-color: var(--neon-purple); box-shadow: 0 0 10px var(--neon-purple); }
 
-        #invoice-print {
-            background: white; color: black; padding: 20px; border-radius: 5px;
-            display: none; width: 300px; margin: auto; font-family: 'Cairo', sans-serif;
+        /* --- زر الحذف (الكود الأول) --- */
+        .delete-btn {
+            width: 40px; height: 40px; border-radius: 10px; background: rgb(255, 69, 69);
+            border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
+        .delete-btn .svgIcon { width: 15px; fill: white; }
 
-        .logo-box {
-            width: 80px; height: 80px; border: 2px dashed var(--accent);
-            border-radius: 50%; margin: 0 auto 20px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        /* --- الفاتورة --- */
+        .result-screen {
+            background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px;
+            text-align: center; border: 1px dashed var(--neon-purple); margin-top: 20px;
         }
-        .logo-box img { width: 100%; height: 100%; object-fit: cover; }
+        .total-price { font-size: 2.5em; color: var(--neon-purple); text-shadow: 0 0 15px var(--neon-purple); margin: 10px 0; }
 
-        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 20px; }
-        input:checked + .slider { background-color: var(--accent); }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider:before { transform: translateX(20px); }
-
-        #items-list { max-height: 150px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border); border-radius: 10px; padding: 5px; }
-        .item-entry { display: flex; justify-content: space-between; font-size: 13px; padding: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-
-        .loading-overlay { 
-            position: absolute; top:0; left:0; width:100%; height:100%; 
-            background: rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; z-index:1000; border-radius: 20px;
-        }
     </style>
 </head>
-<body>
+<body class="dark-theme">
+
+    <!-- زر تبديل الثيم -->
+    <label class="theme-switch">
+        <input type="checkbox" class="theme-switch__checkbox" id="themeToggle">
+        <div class="theme-switch__container">
+            <div class="theme-switch__circle-container"></div>
+        </div>
+    </label>
 
     <div class="glass-card">
-        <div id="loading" class="loading-overlay">⏳ جاري التحقق...</div>
-
-        <!-- صفحة تسجيل الدخول -->
-        <div id="login-page" class="page active">
-            <h1>أحسبلي</h1>
-            <input type="text" id="login-user" placeholder="اسم المستخدم">
-            <input type="password" id="login-pass" placeholder="كلمة المرور">
-            <button onclick="handleLogin()">دخول آمن</button>
-            <button style="background:none; color:white; font-size:12px;" onclick="switchPage('signup-page')">إنشاء حساب جديد</button>
+        
+        <!-- صفحة الدخول -->
+        <div id="loginPage" class="page active">
+            <form class="form" onsubmit="event.preventDefault(); app.login();">
+                <p id="heading">أحسبلي</p>
+                <div class="field">
+                    <svg class="input-icon" viewBox="0 0 16 16"><path d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z"></path></svg>
+                    <input id="user" placeholder="اسم المستخدم" class="input-field" type="text">
+                </div>
+                <div class="field">
+                    <svg class="input-icon" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path></svg>
+                    <input id="pass" placeholder="كلمة المرور" class="input-field" type="password">
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="button1">دخول</button>
+                    <button type="button" class="button2" onclick="app.showPage('signupPage')">تسجيل</button>
+                </div>
+                <button type="button" class="button3">نسيت كلمة المرور؟</button>
+            </form>
         </div>
 
-        <!-- صفحة إنشاء حساب -->
-        <div id="signup-page" class="page">
-            <h2>إنشاء حساب</h2>
-            <input type="text" id="reg-name" placeholder="الاسم الثلاثي">
-            <input type="text" id="reg-lib" placeholder="اسم المكتبة">
-            <input type="text" id="reg-phone" placeholder="رقم الهاتف (تليجرام)">
-            <input type="text" id="reg-addr" placeholder="عنوان المكتبة">
-            <button onclick="register()">إرسال وتفعيل الحساب</button>
-            <button style="background:none; color:white;" onclick="switchPage('login-page')">رجوع</button>
+        <!-- صفحة التسجيل -->
+        <div id="signupPage" class="page">
+            <h2 id="heading">إنشاء حساب جديد</h2>
+            <div class="form">
+                <input id="regName" placeholder="الاسم الثلاثي" class="input-field" type="text" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
+                <input id="regLib" placeholder="اسم المكتبة" class="input-field" type="text" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
+                <input id="regPhone" placeholder="رقم الهاتف (تليجرام)" class="input-field" type="text" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
+                <button class="button1" onclick="app.signup()">إرسال وتفعيل</button>
+                <button class="button3" onclick="app.showPage('loginPage')">رجوع</button>
+            </div>
         </div>
 
         <!-- الواجهة الرئيسية -->
-        <div id="main-page" class="page">
-            <div class="main-layout">
+        <div id="mainPage" class="page" style="padding:0;">
+            <div class="dashboard">
                 <div class="sidebar">
-                    <div class="logo-box" onclick="document.getElementById('logoInput').click()">
-                        <img id="displayLogo" src="" style="display:none;">
-                        <span id="logoText">لوجو</span>
+                    <div id="libLogo" onclick="app.uploadLogo()" style="width:100px; height:100px; border-radius:50%; border:2px dashed var(--neon-purple); margin:auto; cursor:pointer; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                        <span id="logoLabel">LOGO</span>
+                        <img id="logoImg" style="display:none; width:100%; height:100%; object-fit:cover;">
                     </div>
-                    <input type="file" id="logoInput" hidden onchange="changeLogo(event)">
-                    <div class="nav-item active" onclick="showSection('calc')">🧾 الحاسبة</div>
-                    <div class="nav-item" onclick="showSection('products')">📦 المواد</div>
-                    <div class="nav-item" onclick="showSection('reports')">📊 التقارير</div>
-                    <div class="nav-item" onclick="showSection('telegram')">⚙️ تليجرام</div>
-                    <button onclick="logout()" style="background:#ff4757; color:white; margin-top:20px;">خروج</button>
+                    <h3 id="libHeader" style="text-align:center; color:var(--neon-purple); margin-top:15px;">المكتبة</h3>
+                    <hr style="opacity:0.1;">
+                    <div class="nav-link active" onclick="app.showTab('calc')">🧾 الحاسبة</div>
+                    <div class="nav-link" onclick="app.showTab('items')">📦 المواد</div>
+                    <div class="nav-link" onclick="app.showTab('reports')">📊 التقارير</div>
+                    <div class="nav-link" onclick="app.showTab('tg')">⚙️ تليجرام</div>
+                    <button class="button2" onclick="location.reload()" style="width:100%; margin-top:50px;">خروج</button>
                 </div>
 
-                <div class="content">
-                    <!-- قسم الحاسبة -->
-                    <div id="sec-calc" class="section">
-                        <h2 id="libDisplayName">اسم المكتبة</h2>
-                        <input type="text" id="docName" placeholder="اسم الملف (اختياري)">
-                        <div class="calc-grid">
-                            <input type="number" id="pageFrom" placeholder="من صفحة">
-                            <input type="number" id="pageTo" placeholder="إلى صفحة">
+                <div class="calc-box">
+                    <div id="tab-calc">
+                        <input type="text" id="docName" placeholder="اسم الملف (اختياري)" style="width:100%; margin-bottom:15px;">
+                        <div class="grid-inputs">
+                            <input type="number" id="pFrom" placeholder="من صفحة">
+                            <input type="number" id="pTo" placeholder="إلى صفحة">
                         </div>
-                        <input type="number" id="pageTotal" placeholder="أو عدد الصفحات الكلي">
-                        <div class="calc-grid">
-                            <input type="number" id="priceFixed" placeholder="السعر لكل صفحة" value="250">
-                            <input type="number" id="taxVal" placeholder="الضريبة">
+                        <p style="text-align:center;">أو</p>
+                        <input type="number" id="pTotal" placeholder="عدد الصفحات الإجمالي" style="width:100%; margin-bottom:15px;">
+                        
+                        <div class="result-screen">
+                            <p>المجموع النهائي</p>
+                            <h2 class="total-price" id="finalTotal">0 د.ع</h2>
+                            <button class="button1" style="width:auto; padding:10px 30px;" onclick="app.calculate()">أحسب</button>
+                            <button class="button2" style="width:auto; padding:10px 30px;" onclick="app.print()">طباعة 🖨️</button>
                         </div>
-                        <h3 id="finalResult" style="text-align:center; color:var(--accent)">الإجمالي: 0 د.ع</h3>
-                        <button onclick="calculate()">إحسب المجموع</button>
-                        <button onclick="printInvoice()" style="background:white; color:black">طباعة الوصل 🖨️</button>
-                    </div>
-
-                    <!-- قسم المواد -->
-                    <div id="sec-products" class="section" style="display:none;">
-                        <h3>إضافة مواد إضافية</h3>
-                        <div class="calc-grid">
-                            <input type="text" id="prod-name" placeholder="المادة">
-                            <input type="number" id="prod-price" placeholder="السعر">
-                        </div>
-                        <button onclick="addItem()" style="background:#2ed573">+ إضافة للمسودة</button>
-                        <div id="items-list">
-                            <!-- القائمة تظهر هنا -->
-                        </div>
-                        <button onclick="clearItems()" style="background:none; border:1px solid red; color:red; font-size:12px; margin-top:5px;">تفريغ القائمة</button>
-                    </div>
-
-                    <!-- قسم تليجرام -->
-                    <div id="sec-telegram" class="section" style="display:none;">
-                        <h2>إعدادات البوت الشخصي</h2>
-                        <div class="feature-item"><span>الترحيب التلقائي</span> <label class="switch"><input type="checkbox" id="tg-welcome"><span class="slider"></span></label></div>
-                        <div class="feature-item"><span>الذكاء الاصطناعي</span> <label class="switch"><input type="checkbox" id="tg-ai"><span class="slider"></span></label></div>
-                        <div class="feature-item"><span>رد خارج الدوام</span> <label class="switch"><input type="checkbox" id="tg-away"><span class="slider"></span></label></div>
-                        <div class="feature-item"><span>خزن الرسائل</span> <input type="text" placeholder="ID الكروب" style="width:100px; margin:0;"></div>
-                    </div>
-
-                    <!-- قسم التقارير -->
-                    <div id="sec-reports" class="section" style="display:none;">
-                        <h2>تقرير اليوم</h2>
-                        <p id="reportDate">تاريخ البدء: --/--/----</p>
-                        <div class="nav-item">عدد الفواتير: <span id="countInv">0</span></div>
-                        <div class="nav-item">إجمالي الإيرادات: <span id="totalMoney">0</span> د.ع</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- الوصل للطباعة -->
-    <div id="invoice-print">
-        <h2 id="invLibName" style="margin:0;">المكتبة</h2>
-        <p id="invDate" style="font-size:10px;"></p>
-        <hr>
-        <div id="invContent" style="text-align:right; font-size:12px;"></div>
-        <hr>
-        <h3 id="invTotal" style="text-align:center;"></h3>
-        <p style="text-align:center; font-size:9px;">برنامج أحسبلي - شكراً لثقتكم</p>
-    </div>
-
     <script>
-        // ضع رابط الـ Script الخاص بك هنا
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcjn3Jz0aD6ytI5t-OCl2Ccy9L-q2lUa8TW9UYrSUjWj9yKSF0Gp2boCWUO_RV7z2C/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyM10lfffWUIz0OTq8Y2DhG-DSn-Z9Sw639uYDyfZyjgWwcdd5r0pzTAM3AALnfk9BP/exec";
 
-        let invoiceItems = [];
-        let sessionStats = { count: 0, money: 0 };
+        const app = {
+            showPage: (id) => {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+            },
 
-        // وظيفة التنقل
-        function switchPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-        }
+            showTab: (id) => {
+                // منطق التبديل بين الأقسام
+                alert("تم الانتقال إلى: " + id);
+            },
 
-        function showSection(secId) {
-            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-            document.getElementById('sec-' + secId).style.display = 'block';
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
+            login: async () => {
+                const user = document.getElementById('user').value;
+                const pass = document.getElementById('pass').value;
+                if(!user || !pass) return alert("أدخل البيانات");
 
-        // تسجيل الدخول الحقيقي
-        async function handleLogin() {
-            const user = document.getElementById('login-user').value;
-            const pass = document.getElementById('login-pass').value;
-            if(!user || !pass) return alert("يرجى إدخال البيانات");
-
-            document.getElementById('loading').style.display = 'flex';
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "login", user: user, pass: pass })
-                });
-                const result = await response.json();
-
-                if(result.status === "success") {
-                    localStorage.setItem('user', user);
-                    localStorage.setItem('sessionID', result.session);
-                    localStorage.setItem('libName', result.libName);
-                    checkAuth();
-                } else {
-                    alert(result.msg);
-                }
-            } catch (e) {
-                alert("حدث خطأ في الاتصال بالسيرفر");
-            }
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        // فحص الجلسة (منع تعدد الأجهزة)
-        async function checkAuth() {
-            const user = localStorage.getItem('user');
-            const session = localStorage.getItem('sessionID');
-            
-            if(!user || !session) {
-                switchPage('login-page');
-                return;
-            }
-
-            // فحص هل الجلسة لا تزال صالحة
-            try {
+                // محاكاة التحقق
                 const res = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "checkSession", user: user, session: session })
+                    method: 'POST',
+                    body: JSON.stringify({ action: "login", user, pass })
                 });
-                const status = await res.text();
-                if(status === "valid") {
-                    document.getElementById('libDisplayName').innerText = localStorage.getItem('libName');
-                    switchPage('main-page');
-                } else {
-                    logout();
-                    alert("تم تسجيل الدخول من جهاز آخر أو انتهت الجلسة");
-                }
-            } catch(e) {}
-        }
+                const data = await res.json();
+                if(data.status === "success") {
+                    document.getElementById('libHeader').innerText = data.libName;
+                    app.showPage('mainPage');
+                } else { alert(data.msg); }
+            },
 
-        // تسجيل الخروج
-        function logout() {
-            localStorage.clear();
-            location.reload();
-        }
+            signup: async () => {
+                const data = {
+                    action: "signup",
+                    name: document.getElementById('regName').value,
+                    library: document.getElementById('regLib').value,
+                    phone: document.getElementById('regPhone').value
+                };
+                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
+                alert("تم الإرسال! سيصلك الحساب عبر التليجرام.");
+                window.location.href = "https://t.me/mb4x_bot";
+            },
 
-        // إضافة مادة
-        function addItem() {
-            const name = document.getElementById('prod-name').value;
-            const price = parseFloat(document.getElementById('prod-price').value);
-            if(!name || !price) return;
+            calculate: () => {
+                let pages = 0;
+                const from = parseInt(document.getElementById('pFrom').value);
+                const to = parseInt(document.getElementById('pTo').value);
+                const total = parseInt(document.getElementById('pTotal').value);
 
-            invoiceItems.push({ name, price });
-            renderItems();
-            document.getElementById('prod-name').value = '';
-            document.getElementById('prod-price').value = '';
-            calculate();
-        }
+                if(total) pages = total;
+                else if(from && to) pages = (to - from) + 1;
 
-        function renderItems() {
-            const container = document.getElementById('items-list');
-            container.innerHTML = invoiceItems.map(item => `
-                <div class="item-entry">
-                    <span>${item.name}</span>
-                    <span>${item.price.toLocaleString()} د.ع</span>
-                </div>
-            `).join('');
-        }
+                const result = pages * 250; // السعر الافتراضي
+                document.getElementById('finalTotal').innerText = result.toLocaleString() + " د.ع";
+            },
 
-        function clearItems() { invoiceItems = []; renderItems(); calculate(); }
-
-        // الحسابات
-        function calculate() {
-            let pages = 0;
-            const from = parseInt(document.getElementById('pageFrom').value);
-            const to = parseInt(document.getElementById('pageTo').value);
-            const totalInput = parseInt(document.getElementById('pageTotal').value);
-
-            if (!isNaN(from) && !isNaN(to)) pages = (to - from) + 1;
-            else if (!isNaN(totalInput)) pages = totalInput;
-
-            const pricePerPage = parseInt(document.getElementById('priceFixed').value) || 0;
-            const tax = parseInt(document.getElementById('taxVal').value) || 0;
-            
-            let totalItemsPrice = invoiceItems.reduce((sum, item) => sum + item.price, 0);
-            const final = (pages * pricePerPage) + tax + totalItemsPrice;
-
-            document.getElementById('finalResult').innerText = "الإجمالي: " + final.toLocaleString() + " د.ع";
-            return { final, pages };
-        }
-
-        // الطباعة
-        function printInvoice() {
-            const res = calculate();
-            const lib = localStorage.getItem('libName');
-            const doc = document.getElementById('docName').value || "ملف عام";
-            
-            document.getElementById('invLibName').innerText = lib;
-            document.getElementById('invDate').innerText = new Date().toLocaleString();
-            
-            let detailsHtml = `<p>المستند: ${doc}</p>`;
-            if(res.pages > 0) detailsHtml += `<p>عدد الصفحات: ${res.pages}</p>`;
-            
-            invoiceItems.forEach(item => {
-                detailsHtml += `<p>${item.name}: ${item.price.toLocaleString()} د.ع</p>`;
-            });
-
-            document.getElementById('invContent').innerHTML = detailsHtml;
-            document.getElementById('invTotal').innerText = "المجموع: " + res.final.toLocaleString() + " د.ع";
-
-            // تحديث التقارير
-            sessionStats.count++;
-            sessionStats.money += res.final;
-            document.getElementById('countInv').innerText = sessionStats.count;
-            document.getElementById('totalMoney').innerText = sessionStats.money.toLocaleString();
-
-            const win = window.open('', '', 'width=400,height=600');
-            win.document.write('<html><head><title>وصل</title><style>body{text-align:center; font-family:Cairo;}</style></head><body>' + document.getElementById('invoice-print').innerHTML + '</body></html>');
-            win.document.close();
-            win.print();
-        }
-
-        // إنشاء حساب
-        async function register() {
-            const data = {
-                action: "signup",
-                name: document.getElementById('reg-name').value,
-                library: document.getElementById('reg-lib').value,
-                phone: document.getElementById('reg-phone').value,
-                address: document.getElementById('reg-addr').value
-            };
-            if(!data.name || !data.phone) return alert("املأ الحقول");
-
-            await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-            alert("تم إرسال طلبك! سيصلك الحساب عبر التليجرام");
-            window.location.href = "https://t.me/mb4x_bot";
-        }
-
-        function changeLogo(event) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const img = document.getElementById('displayLogo');
-                img.src = reader.result;
-                img.style.display = 'block';
-                document.getElementById('logoText').style.display = 'none';
-                localStorage.setItem('userLogo', reader.result);
+            uploadLogo: () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.onchange = (e) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        document.getElementById('logoImg').src = reader.result;
+                        document.getElementById('logoImg').style.display = 'block';
+                        document.getElementById('logoLabel').style.display = 'none';
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                };
+                input.click();
             }
-            reader.readAsDataURL(event.target.files[0]);
-        }
-
-        window.onload = () => {
-            if(localStorage.getItem('userLogo')) {
-                document.getElementById('displayLogo').src = localStorage.getItem('userLogo');
-                document.getElementById('displayLogo').style.display = 'block';
-                document.getElementById('logoText').style.display = 'none';
-            }
-            document.getElementById('reportDate').innerText = "تاريخ البدء: " + new Date().toLocaleDateString();
-            checkAuth();
-            setInterval(checkAuth, 20000); // فحص الجلسة كل 20 ثانية
         };
+
+        // زر تبديل الثيم
+        document.getElementById('themeToggle').addEventListener('change', (e) => {
+            if(e.target.checked) {
+                document.body.classList.remove('dark-theme');
+                document.body.classList.add('light-theme');
+            } else {
+                document.body.classList.remove('light-theme');
+                document.body.classList.add('dark-theme');
+            }
+        });
     </script>
 </body>
 </html>
