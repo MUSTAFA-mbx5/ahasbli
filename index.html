@@ -169,6 +169,19 @@
                         <button onclick="calculate()">إحسب</button>
                         <button onclick="printInvoice()">طباعة وصل 🖨️</button>
                     </div>
+                    <!-- قسم المواد والمنتجات -->
+<div id="sec-products" class="section" style="display:none;">
+    <h3>📦 إضافة مواد للفاتورة</h3>
+    <div class="calc-grid">
+        <input type="text" id="prod-name" placeholder="اسم المادة (مثلاً: قلم)">
+        <input type="number" id="prod-price" placeholder="السعر">
+    </div>
+    <button onclick="addItem()" style="background:#55efc4">إضافة للمسودة +</button>
+    
+    <div id="items-list" style="margin-top:15px; background:rgba(0,0,0,0.2); border-radius:10px; padding:10px; font-size:14px;">
+        <!-- المواد المضافة ستظهر هنا -->
+    </div>
+</div>
 
                     <!-- قسم تليجرام -->
                     <div id="sec-telegram" class="section" style="display:none;">
@@ -210,7 +223,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymyHh9S6bLaMk8mne3utfxQitaMsKdxQm-8hTbJ64k40wHsOb09ZtMkAfaftAvT6Wc/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyM10lfffWUIz0OTq8Y2DhG-DSn-Z9Sw639uYDyfZyjgWwcdd5r0pzTAM3AALnfk9BP/exec";
 
         // وظائف التنقل
         function switchPage(pageId) {
