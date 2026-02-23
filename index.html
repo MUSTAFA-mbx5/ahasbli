@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أحسبلي | Neon Purple Edition</title>
+    <title>1أحسبلي | Neon Purple Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* --- المتغيرات والثيمات --- */
@@ -130,15 +130,122 @@
         .delete-btn .svgIcon { width: 15px; fill: white; }
 
         /* --- الفاتورة --- */
-        .result-screen {
-            background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px;
-            text-align: center; border: 1px dashed var(--neon-purple); margin-top: 20px;
-        }
-        .total-price { font-size: 2.5em; color: var(--neon-purple); text-shadow: 0 0 15px var(--neon-purple); margin: 10px 0; }
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>فاتورة</title>
+<style>
+    body.dark-theme {
+        background: #111;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        color: #eee;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
 
-    </style>
+    .invoice {
+        background: rgba(0,0,0,0.6);
+        border-radius: 20px;
+        padding: 30px;
+        width: 400px;
+        border: 1px solid var(--neon-purple, #a020f0);
+        box-shadow: 0 0 20px var(--neon-purple, #a020f0);
+    }
+
+    .invoice-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .invoice-header h2 {
+        color: var(--neon-purple, #a020f0);
+        text-shadow: 0 0 10px var(--neon-purple, #a020f0);
+    }
+
+    .invoice-details {
+        margin-bottom: 20px;
+    }
+    .invoice-details p {
+        margin: 5px 0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    table th, table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px dashed var(--neon-purple, #a020f0);
+    }
+    table th {
+        color: var(--neon-purple, #a020f0);
+    }
+
+    .result-screen {
+        background: rgba(0,0,0,0.4);
+        border-radius: 20px;
+        padding: 20px;
+        text-align: center;
+        border: 1px dashed var(--neon-purple, #a020f0);
+        margin-top: 20px;
+    }
+
+    .total-price {
+        font-size: 2.5em;
+        color: var(--neon-purple, #a020f0);
+        text-shadow: 0 0 15px var(--neon-purple, #a020f0);
+        margin: 10px 0;
+    }
+</style>
 </head>
 <body class="dark-theme">
+    <div class="invoice">
+        <div class="invoice-header">
+            <h2>فاتورة شراء</h2>
+            <p>شركة المستقبل للتقنية</p>
+        </div>
+
+        <div class="invoice-details">
+            <p><strong>العميل:</strong> أحمد علي</p>
+            <p><strong>التاريخ:</strong> 23/02/2026</p>
+            <p><strong>رقم الفاتورة:</strong> #INV-1024</p>
+        </div>
+
+        <table>
+            <tr>
+                <th>المنتج</th>
+                <th>الكمية</th>
+                <th>السعر</th>
+            </tr>
+            <tr>
+                <td>حاسوب محمول</td>
+                <td>1</td>
+                <td>$1200</td>
+            </tr>
+            <tr>
+                <td>ماوس لاسلكي</td>
+                <td>2</td>
+                <td>$40</td>
+            </tr>
+            <tr>
+                <td>سماعات</td>
+                <td>1</td>
+                <td>$80</td>
+            </tr>
+        </table>
+
+        <div class="result-screen">
+            <p>المجموع الكلي</p>
+            <div class="total-price">$1320</div>
+        </div>
+    </div>
+</body>
+</html>
+
 
     <!-- زر تبديل الثيم -->
     <label class="theme-switch">
