@@ -1,4 +1,35 @@
-<!DOCTYPE html>
+var ADMIN_ID = "815444701";
+var ADMIN_TOKEN = "913904899:AAE0dPCF4LLLi82MOWEfDF7CkmoAYArt0Aw";
+
+function doPost(e) {
+  var contents = JSON.parse(e.postData.contents);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
+
+  if (contents.action == "login") {
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][4] == contents.user && data[i][5] == contents.pass) {
+        var sess = "SID" + new Date().getTime();
+        sheet.getRange(i+1, 10).setValue(sess);
+        return ContentService.createTextOutput(JSON.stringify({status:"success", session:sess, libName:data[i][2]})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({status:"error", msg:"بيانات خاطئة"})).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (contents.action == "checkSession") {
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][4] == contents.user) {
+        return ContentService.createTextOutput(data[i][9] == contents.session ? "valid" : "invalid");
+      }
+    }
+  }
+  
+  // كود الـ Signup يبقى كما هو في النسخ السابقة
+}
+        <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
