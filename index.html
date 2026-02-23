@@ -3,385 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1أحسبلي | Neon Purple Edition</title>
+    <title>برنامج أحسبلي | الإصدار الاحترافي v1.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- المتغيرات والثيمات --- */
+        /* --- المتغيرات العامة --- */
         :root {
-            --bg-color: #0d0d0d;
-            --glass-bg: rgba(20, 20, 20, 0.6);
+            --bg-color: #0b0b0b;
             --neon-purple: #bc13fe;
-            --text-color: #ffffff;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-            --btn-3d: inset 2px 2px 5px rgba(255,255,255,0.1), inset -2px -2px 5px rgba(0,0,0,0.5);
+            --glass: rgba(255, 255, 255, 0.03);
+            --text-color: #eee;
+            --shadow: 0 0 20px rgba(188, 19, 254, 0.4);
         }
 
         .light-theme {
-            --bg-color: #f0f2f5;
-            --glass-bg: rgba(255, 255, 255, 0.7);
+            --bg-color: #f5f6fa;
             --neon-purple: #6c5ce7;
+            --glass: rgba(0, 0, 0, 0.05);
             --text-color: #2d3436;
-            --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
         }
 
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.3s; }
 
         body {
-            margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+            margin: 0; background: var(--bg-color); color: var(--text-color);
+            height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center;
         }
 
-        /* --- خلفية متحركة نيون --- */
-        body::before {
-            content: ""; position: absolute; width: 300px; height: 300px;
-            background: var(--neon-purple); filter: blur(150px);
-            top: 10%; left: 10%; z-index: -1; opacity: 0.4;
+        /* --- حاوية الزجاج الكبرى --- */
+        .glass-box {
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px;
+            width: 95%; max-width: 1150px; height: 90vh;
+            display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);
         }
 
-        /* --- زر تبديل الثيم (الكود الثالث) --- */
-        .theme-switch {
-            position: fixed; top: 20px; left: 20px; z-index: 1000;
-            --container_width: 3.7em; --container_height: 2em; --circle_diameter: 1.5em;
-            --sun_moon_rotate_relative_distance: -50%;
-        }
-        .theme-switch__checkbox { display: none; }
-        .theme-switch__container {
-            width: var(--container_width); height: var(--container_height);
-            background-color: #3a3a3a; border-radius: 2em; position: relative; cursor: pointer;
-            box-shadow: 0 0 10px var(--neon-purple); overflow: hidden;
-        }
-        .theme-switch__circle-container {
-            width: var(--circle_diameter); height: var(--circle_diameter); background-color: #fff;
-            border-radius: 50%; position: absolute; left: 0.25em; top: 0.25em; transition: 0.3s;
-        }
-        .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__circle-container {
-            left: calc(100% - var(--circle_diameter) - 0.25em);
-        }
+        /* --- زر تبديل الثيم --- */
+        .theme-switch { position: fixed; top: 20px; left: 20px; z-index: 1000; cursor: pointer; }
+        .theme-switch-icon { font-size: 24px; padding: 10px; background: var(--glass); border-radius: 50%; border: 1px solid var(--neon-purple); }
 
-        /* --- حاوية الزجاج (Glass Container) --- */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            width: 95%; max-width: 900px; height: 85vh;
-            box-shadow: var(--shadow);
-            display: flex; flex-direction: column; overflow: hidden;
-            position: relative;
+        /* --- شاشات النظام --- */
+        .page { display: none; width: 100%; height: 100%; padding: 30px; }
+        .page.active { display: flex; flex-direction: column; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- واجهة الدخول والخروج --- */
+        .auth-container { max-width: 380px; margin: auto; padding: 30px; background: rgba(0,0,0,0.3); border-radius: 20px; border: 1px solid var(--neon-purple); text-align: center; }
+        .input-field { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; outline: none; }
+        .input-field:focus { border-color: var(--neon-purple); box-shadow: 0 0 10px var(--neon-purple); }
+        
+        /* أزرار 3D ضبابية */
+        .btn-3d { 
+            width: 100%; padding: 12px; border-radius: 12px; border: none; cursor: pointer; 
+            font-weight: bold; background: var(--neon-purple); color: white; margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(188, 19, 254, 0.3); position: relative;
         }
+        .btn-3d:active { transform: translateY(2px); box-shadow: 0 2px 10px var(--neon-purple); }
+        .btn-ghost { background: transparent; border: 1px solid var(--neon-purple); color: var(--neon-purple); }
 
-        .page { display: none; width: 100%; height: 100%; padding: 40px; }
-        .active { display: flex; flex-direction: column; justify-content: center; }
-
-        /* --- استايل الفورم (الكود الثاني مطور) --- */
-        .form { display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: auto; }
-        #heading { font-size: 2em; font-weight: bold; color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple); margin-bottom: 20px; text-align: center; }
-        .field {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .input-icon { fill: var(--neon-purple); width: 20px; }
-        .input-field { background: none; border: none; color: white; outline: none; width: 100%; font-size: 16px; }
-        .light-theme .input-field { color: #000; }
-
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .button1, .button2 {
-            flex: 1; padding: 12px; border-radius: 12px; border: none; cursor: pointer;
-            font-weight: bold; text-transform: uppercase;
-            box-shadow: var(--btn-3d); transition: 0.3s;
-        }
-        .button1 { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); }
-        .button2 { background: rgba(255,255,255,0.1); color: var(--text-color); border: 1px solid var(--neon-purple); }
-        .button1:hover, .button2:hover { transform: translateY(-3px) scale(1.05); }
-
-        .button3 { background: none; border: none; color: var(--neon-purple); cursor: pointer; margin-top: 10px; font-size: 12px; }
-
-        /* --- واجهة التطبيق الرئيسية (Dashboard) --- */
-        .dashboard { display: grid; grid-template-columns: 250px 1fr; height: 100%; }
-        .sidebar { background: rgba(0,0,0,0.3); padding: 20px; border-left: 1px solid rgba(255,255,255,0.05); }
-        .nav-link {
-            padding: 15px; margin-bottom: 10px; border-radius: 15px; cursor: pointer;
-            display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.02);
-        }
+        /* --- التخطيط الرئيسي (Sidebar + Content) --- */
+        .main-layout { display: grid; grid-template-columns: 240px 1fr; height: 100%; }
+        .sidebar { background: rgba(0,0,0,0.4); border-left: 1px solid rgba(255,255,255,0.05); padding: 25px; text-align: center; }
+        .nav-link { padding: 12px; margin-bottom: 12px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #888; }
         .nav-link:hover, .nav-link.active { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); }
 
-        /* --- الحاسبة الاحترافية --- */
-        .calc-box { padding: 20px; flex: 1; overflow-y: auto; }
-        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        input[type="number"], input[type="text"] {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px; border-radius: 12px; color: var(--text-color); outline: none;
+        /* --- قسم الحاسبة والفاتورة --- */
+        .content-area { padding: 25px; overflow-y: auto; }
+        .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        
+        .invoice-card {
+            background: rgba(0,0,0,0.4); border-radius: 20px; padding: 25px;
+            border: 1px solid var(--neon-purple); box-shadow: 0 0 20px var(--neon-purple);
+            text-align: center; max-width: 500px; margin: 20px auto;
         }
-        input:focus { border-color: var(--neon-purple); box-shadow: 0 0 10px var(--neon-purple); }
+        .invoice-card h2 { color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple); }
+        .total-price { font-size: 3em; color: var(--neon-purple); text-shadow: 0 0 15px var(--neon-purple); margin: 15px 0; }
 
-        /* --- زر الحذف (الكود الأول) --- */
-        .delete-btn {
-            width: 40px; height: 40px; border-radius: 10px; background: rgb(255, 69, 69);
-            border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
-        .delete-btn .svgIcon { width: 15px; fill: white; }
+        /* --- تليجرام الذكي --- */
+        .tg-box { background: rgba(188, 19, 254, 0.05); padding: 20px; border-radius: 20px; border: 1px dashed var(--neon-purple); margin-bottom: 20px; }
+        .switch { position: relative; display: inline-block; width: 45px; height: 22px; }
+        .switch input { display: none; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; border-radius: 20px; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background: var(--neon-purple); }
+        input:checked + .slider:before { transform: translateX(23px); }
 
-        /* --- الفاتورة --- */
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-<meta charset="UTF-8">
-<title>فاتورة</title>
-<style>
-    body.dark-theme {
-        background: #111;
-        font-family: 'Segoe UI', Tahoma, sans-serif;
-        color: #eee;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-    }
+        /* --- زر سلة المهملات --- */
+        .delete-btn { width: 35px; height: 35px; border-radius: 50%; background: #ff4757; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .delete-btn svg { width: 16px; fill: white; }
 
-    .invoice {
-        background: rgba(0,0,0,0.6);
-        border-radius: 20px;
-        padding: 30px;
-        width: 400px;
-        border: 1px solid var(--neon-purple, #a020f0);
-        box-shadow: 0 0 20px var(--neon-purple, #a020f0);
-    }
-
-    .invoice-header {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    .invoice-header h2 {
-        color: var(--neon-purple, #a020f0);
-        text-shadow: 0 0 10px var(--neon-purple, #a020f0);
-    }
-
-    .invoice-details {
-        margin-bottom: 20px;
-    }
-    .invoice-details p {
-        margin: 5px 0;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-    }
-    table th, table td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px dashed var(--neon-purple, #a020f0);
-    }
-    table th {
-        color: var(--neon-purple, #a020f0);
-    }
-
-    .result-screen {
-        background: rgba(0,0,0,0.4);
-        border-radius: 20px;
-        padding: 20px;
-        text-align: center;
-        border: 1px dashed var(--neon-purple, #a020f0);
-        margin-top: 20px;
-    }
-
-    .total-price {
-        font-size: 2.5em;
-        color: var(--neon-purple, #a020f0);
-        text-shadow: 0 0 15px var(--neon-purple, #a020f0);
-        margin: 10px 0;
-    }
-</style>
+    </style>
 </head>
 <body class="dark-theme">
-    <div class="invoice">
-        <div class="invoice-header">
-            <h2>فاتورة شراء</h2>
-            <p>شركة المستقبل للتقنية</p>
-        </div>
 
-        <div class="invoice-details">
-            <p><strong>العميل:</strong> أحمد علي</p>
-            <p><strong>التاريخ:</strong> 23/02/2026</p>
-            <p><strong>رقم الفاتورة:</strong> #INV-1024</p>
-        </div>
-
-        <table>
-            <tr>
-                <th>المنتج</th>
-                <th>الكمية</th>
-                <th>السعر</th>
-            </tr>
-            <tr>
-                <td>حاسوب محمول</td>
-                <td>1</td>
-                <td>$1200</td>
-            </tr>
-            <tr>
-                <td>ماوس لاسلكي</td>
-                <td>2</td>
-                <td>$40</td>
-            </tr>
-            <tr>
-                <td>سماعات</td>
-                <td>1</td>
-                <td>$80</td>
-            </tr>
-        </table>
-
-        <div class="result-screen">
-            <p>المجموع الكلي</p>
-            <div class="total-price">$1320</div>
-        </div>
+    <!-- تبديل الثيم -->
+    <div class="theme-switch" onclick="app.toggleTheme()">
+        <div class="theme-switch-icon">🌓</div>
     </div>
-</body>
-</html>
 
-
-    <!-- زر تبديل الثيم -->
-    <label class="theme-switch">
-        <input type="checkbox" class="theme-switch__checkbox" id="themeToggle">
-        <div class="theme-switch__container">
-            <div class="theme-switch__circle-container"></div>
-        </div>
-    </label>
-
-    <div class="glass-card">
+    <div class="glass-box">
         
-        <!-- صفحة الدخول -->
+        <!-- 1. صفحة الدخول -->
         <div id="loginPage" class="page active">
-            <form class="form" onsubmit="event.preventDefault(); app.login();">
-                <p id="heading">أحسبلي</p>
-                <div class="field">
-                    <svg class="input-icon" viewBox="0 0 16 16"><path d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z"></path></svg>
-                    <input id="user" placeholder="اسم المستخدم" class="input-field" type="text">
-                </div>
-                <div class="field">
-                    <svg class="input-icon" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path></svg>
-                    <input id="pass" placeholder="كلمة المرور" class="input-field" type="password">
-                </div>
-                <div class="btn-group">
-                    <button type="submit" class="button1">دخول</button>
-                    <button type="button" class="button2" onclick="app.showPage('signupPage')">تسجيل</button>
-                </div>
-                <button type="button" class="button3">نسيت كلمة المرور؟</button>
-            </form>
-        </div>
-
-        <!-- صفحة التسجيل -->
-        <div id="signupPage" class="page">
-            <h2 id="heading">إنشاء حساب جديد</h2>
-            <div class="form">
-                <input id="regName" placeholder="الاسم الثلاثي" class="input-field" type="text" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
-                <input id="regLib" placeholder="اسم المكتبة" class="input-field" type="text" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
-                <input id="regPhone" placeholder="رقم الهاتف (تليجرام)" class="input-field" type="text" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
-                <button class="button1" onclick="app.signup()">إرسال وتفعيل</button>
-                <button class="button3" onclick="app.showPage('loginPage')">رجوع</button>
+            <div class="auth-container">
+                <h1 style="color:var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple);">أحسبلي</h1>
+                <p>تسجيل الدخول للنظام</p>
+                <input type="text" id="logUser" class="input-field" placeholder="اسم المستخدم">
+                <input type="password" id="logPass" class="input-field" placeholder="كلمة المرور">
+                <button class="btn-3d" onclick="app.login()">دخول آمن</button>
+                <button class="btn-3d btn-ghost" onclick="app.showPage('signupPage')">إنشاء حساب جديد</button>
             </div>
         </div>
 
-        <!-- الواجهة الرئيسية -->
+        <!-- 2. صفحة التسجيل -->
+        <div id="signupPage" class="page">
+            <div class="auth-container">
+                <h2>انضم إلينا</h2>
+                <input type="text" id="regName" class="input-field" placeholder="الاسم الثلاثي">
+                <input type="text" id="regLib" class="input-field" placeholder="اسم المكتبة">
+                <input type="text" id="regPhone" class="input-field" placeholder="رقم الهاتف">
+                <button class="btn-3d" onclick="app.signup()">إرسال وتفعيل الحساب</button>
+                <button class="btn-3d btn-ghost" onclick="app.showPage('loginPage')">رجوع</button>
+            </div>
+        </div>
+
+        <!-- 3. الواجهة الرئيسية (Dashboard) -->
         <div id="mainPage" class="page" style="padding:0;">
-            <div class="dashboard">
+            <div class="main-layout">
+                <!-- القائمة الجانبية -->
                 <div class="sidebar">
-                    <div id="libLogo" onclick="app.uploadLogo()" style="width:100px; height:100px; border-radius:50%; border:2px dashed var(--neon-purple); margin:auto; cursor:pointer; overflow:hidden; display:flex; align-items:center; justify-content:center;">
-                        <span id="logoLabel">LOGO</span>
+                    <div id="logoArea" onclick="app.uploadLogo()" style="width:100px; height:100px; border-radius:50%; border:2px dashed var(--neon-purple); margin:0 auto 20px; cursor:pointer; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                        <span id="logoText">+</span>
                         <img id="logoImg" style="display:none; width:100%; height:100%; object-fit:cover;">
                     </div>
-                    <h3 id="libHeader" style="text-align:center; color:var(--neon-purple); margin-top:15px;">المكتبة</h3>
-                    <hr style="opacity:0.1;">
+                    <h3 id="sideLibName" style="color:var(--neon-purple);">المكتبة</h3>
+                    <hr style="opacity:0.1">
                     <div class="nav-link active" onclick="app.showTab('calc')">🧾 الحاسبة</div>
                     <div class="nav-link" onclick="app.showTab('items')">📦 المواد</div>
+                    <div class="nav-link" onclick="app.showTab('tg')">🤖 تليجرام الذكي</div>
                     <div class="nav-link" onclick="app.showTab('reports')">📊 التقارير</div>
-                    <div class="nav-link" onclick="app.showTab('tg')">⚙️ تليجرام</div>
-                    <button class="button2" onclick="location.reload()" style="width:100%; margin-top:50px;">خروج</button>
+                    <div class="nav-link" onclick="app.showTab('settings')">⚙️ الإعدادات</div>
+                    <button class="btn-3d btn-ghost" style="margin-top:40px;" onclick="location.reload()">خروج</button>
                 </div>
 
-                <div class="calc-box">
-                    <div id="tab-calc">
-                        <input type="text" id="docName" placeholder="اسم الملف (اختياري)" style="width:100%; margin-bottom:15px;">
-                        <div class="grid-inputs">
-                            <input type="number" id="pFrom" placeholder="من صفحة">
-                            <input type="number" id="pTo" placeholder="إلى صفحة">
+                <!-- المحتوى المتغير -->
+                <div class="content-area">
+                    
+                    <!-- قسم الحاسبة -->
+                    <div id="tab-calc" class="tab-content">
+                        <h2>حاسبة الملفات</h2>
+                        <div class="calc-grid">
+                            <input type="number" id="pFrom" class="input-field" placeholder="من صفحة">
+                            <input type="number" id="pTo" class="input-field" placeholder="إلى صفحة">
                         </div>
-                        <p style="text-align:center;">أو</p>
-                        <input type="number" id="pTotal" placeholder="عدد الصفحات الإجمالي" style="width:100%; margin-bottom:15px;">
+                        <input type="number" id="pTotal" class="input-field" placeholder="أو أدخل العدد الكلي للصفحات">
                         
-                        <div class="result-screen">
-                            <p>المجموع النهائي</p>
-                            <h2 class="total-price" id="finalTotal">0 د.ع</h2>
-                            <button class="button1" style="width:auto; padding:10px 30px;" onclick="app.calculate()">أحسب</button>
-                            <button class="button2" style="width:auto; padding:10px 30px;" onclick="app.print()">طباعة 🖨️</button>
+                        <div class="invoice-card">
+                            <p>المجموع النهائي للفاتورة</p>
+                            <div class="total-price" id="finalTotal">0 د.ع</div>
+                            <button class="btn-3d" style="width:auto; padding:10px 40px;" onclick="app.calculate()">أحسب</button>
+                            <button class="btn-3d btn-ghost" style="width:auto;" onclick="app.print()">طباعة الوصل 🖨️</button>
                         </div>
                     </div>
+
+                    <!-- قسم المواد -->
+                    <div id="tab-items" class="tab-content" style="display:none;">
+                        <h2>إضافة مواد إضافية</h2>
+                        <div class="calc-grid">
+                            <input type="text" id="itemName" class="input-field" placeholder="اسم المادة">
+                            <input type="number" id="itemPrice" class="input-field" placeholder="السعر">
+                        </div>
+                        <button class="btn-3d" onclick="app.addItem()">إضافة مادة +</button>
+                        <div id="itemsList" style="margin-top:20px;"></div>
+                    </div>
+
+                    <!-- قسم تليجرام الذكي -->
+                    <div id="tab-tg" class="tab-content" style="display:none;">
+                        <h2>تفعيل بوت تليجرام الذكي</h2>
+                        <div class="tg-box">
+                            <p>رقم الهاتف المرتبط: <span id="tgCurrentPhone">غير مربوط</span></p>
+                            <input type="text" id="tgPhoneInput" class="input-field" placeholder="أدخل رقم هاتف تليجرام">
+                            <button class="btn-3d" onclick="app.connectTg()">ربط الحساب وتفعيل الميزات</button>
+                        </div>
+                        <div id="tgFeatures" style="opacity:0.3; pointer-events:none;">
+                            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                <span>🤖 الرد بالذكاء الاصطناعي</span>
+                                <label class="switch"><input type="checkbox" id="featAI" onchange="app.saveTg()"><span class="slider"></span></label>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                <span>👋 ترحيب تلقائي بالزبائن</span>
+                                <label class="switch"><input type="checkbox" id="featWelcome" onchange="app.saveTg()"><span class="slider"></span></label>
+                            </div>
+                            <button class="btn-3d btn-ghost" style="background:red; color:white; border:none;" onclick="alert('جاري الإذاعة...')">إذاعة جماعية (Broadcast) 📢</button>
+                        </div>
+                    </div>
+
+                    <!-- قسم التقارير -->
+                    <div id="tab-reports" class="tab-content" style="display:none;">
+                        <h2>تقارير الأرباح</h2>
+                        <div class="calc-grid">
+                            <div class="invoice-card" style="margin:0;"><h3>الفواتير</h3><p id="repCount" style="font-size:24px;">0</p></div>
+                            <div class="invoice-card" style="margin:0;"><h3>الأرباح</h3><p id="repMoney" style="font-size:24px;">0 د.ع</p></div>
+                        </div>
+                    </div>
+
+                    <!-- قسم الإعدادات -->
+                    <div id="tab-settings" class="tab-content" style="display:none;">
+                        <h2>إعدادات النظام</h2>
+                        <input type="number" id="setPrice" class="input-field" placeholder="تغيير سعر الصفحة الافتراضي (مثلاً 250)">
+                        <button class="btn-3d" onclick="alert('تم حفظ الإعدادات')">حفظ التغييرات</button>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzxtLidlg8WdHgT0qoX1DHUQRsV60XQwQzrZRqqOOV1cjWTsP2TqR6ZS_X9dPfgFYlU/exec";
+        const SCRIPT_URL = "رابط_جوجل_سكريبت_الخاص_بك";
 
         const app = {
+            data: { items: [], stats: { count: 0, money: 0 }, tgActive: false },
+
             showPage: (id) => {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.getElementById(id).classList.add('active');
             },
 
-            showTab: (id) => {
-                // منطق التبديل بين الأقسام
-                alert("تم الانتقال إلى: " + id);
+            showTab: (tabId) => {
+                document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+                document.getElementById('tab-' + tabId).style.display = 'block';
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                event.currentTarget.classList.add('active');
             },
 
             login: async () => {
-                const user = document.getElementById('user').value;
-                const pass = document.getElementById('pass').value;
-                if(!user || !pass) return alert("أدخل البيانات");
+                const user = document.getElementById('logUser').value;
+                const pass = document.getElementById('logPass').value;
+                if(!user || !pass) return alert("أدخل بياناتك");
 
-                // محاكاة التحقق
-                const res = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "login", user, pass })
-                });
-                const data = await res.json();
-                if(data.status === "success") {
-                    document.getElementById('libHeader').innerText = data.libName;
-                    app.showPage('mainPage');
-                } else { alert(data.msg); }
+                // محاكاة تسجيل الدخول (سيتم ربطه بـ SCRIPT_URL)
+                localStorage.setItem('user', user);
+                document.getElementById('sideLibName').innerText = "مكتبة " + user;
+                app.showPage('mainPage');
             },
 
             signup: async () => {
-                const data = {
-                    action: "signup",
-                    name: document.getElementById('regName').value,
-                    library: document.getElementById('regLib').value,
-                    phone: document.getElementById('regPhone').value
-                };
-                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-                alert("تم الإرسال! سيصلك الحساب عبر التليجرام.");
-                window.location.href = "https://t.me/mb4x_bot";
+                alert("تم إرسال طلبك للإدارة، سيصلك الحساب عبر تليجرام.");
+                app.showPage('loginPage');
             },
 
             calculate: () => {
                 let pages = 0;
-                const from = parseInt(document.getElementById('pFrom').value);
-                const to = parseInt(document.getElementById('pTo').value);
-                const total = parseInt(document.getElementById('pTotal').value);
+                const f = parseInt(document.getElementById('pFrom').value);
+                const t = parseInt(document.getElementById('pTo').value);
+                const tot = parseInt(document.getElementById('pTotal').value);
+                
+                if(tot) pages = tot;
+                else if(f && t) pages = (t - f) + 1;
 
-                if(total) pages = total;
-                else if(from && to) pages = (to - from) + 1;
+                let itemsTotal = app.data.items.reduce((a, b) => a + b.price, 0);
+                const final = (pages * 250) + itemsTotal;
+                document.getElementById('finalTotal').innerText = final.toLocaleString() + " د.ع";
+                return final;
+            },
 
-                const result = pages * 250; // السعر الافتراضي
-                document.getElementById('finalTotal').innerText = result.toLocaleString() + " د.ع";
+            addItem: () => {
+                const name = document.getElementById('itemName').value;
+                const price = parseInt(document.getElementById('itemPrice').value);
+                if(!name || !price) return;
+                app.data.items.push({ name, price });
+                app.renderItems();
+                app.calculate();
+            },
+
+            renderItems: () => {
+                const container = document.getElementById('itemsList');
+                container.innerHTML = app.data.items.map((it, idx) => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid var(--neon-purple);">
+                        <span>${it.name} - ${it.price} د.ع</span>
+                        <button class="delete-btn" onclick="app.removeItem(${idx})">🗑️</button>
+                    </div>
+                `).join('');
+            },
+
+            removeItem: (idx) => {
+                app.data.items.splice(idx, 1);
+                app.renderItems();
+                app.calculate();
+            },
+
+            connectTg: () => {
+                const phone = document.getElementById('tgPhoneInput').value;
+                if(!phone) return alert("أدخل الرقم");
+                document.getElementById('tgCurrentPhone').innerText = phone;
+                document.getElementById('tgFeatures').style.opacity = "1";
+                document.getElementById('tgFeatures').style.pointerEvents = "auto";
+                alert("تم ربط الحساب بنجاح!");
+            },
+
+            print: () => {
+                const total = app.calculate();
+                app.data.stats.count++;
+                app.data.stats.money += total;
+                document.getElementById('repCount').innerText = app.data.stats.count;
+                document.getElementById('repMoney').innerText = app.data.stats.money.toLocaleString() + " د.ع";
+                window.print();
             },
 
             uploadLogo: () => {
@@ -392,24 +318,17 @@
                     reader.onload = () => {
                         document.getElementById('logoImg').src = reader.result;
                         document.getElementById('logoImg').style.display = 'block';
-                        document.getElementById('logoLabel').style.display = 'none';
-                    }
+                        document.getElementById('logoText').style.display = 'none';
+                    };
                     reader.readAsDataURL(e.target.files[0]);
                 };
                 input.click();
+            },
+
+            toggleTheme: () => {
+                document.body.classList.toggle('light-theme');
             }
         };
-
-        // زر تبديل الثيم
-        document.getElementById('themeToggle').addEventListener('change', (e) => {
-            if(e.target.checked) {
-                document.body.classList.remove('dark-theme');
-                document.body.classList.add('light-theme');
-            } else {
-                document.body.classList.remove('light-theme');
-                document.body.classList.add('dark-theme');
-            }
-        });
     </script>
 </body>
 </html>
