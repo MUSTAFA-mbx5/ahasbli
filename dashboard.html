@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>أحسبلي | لوحة التحكم</title>
+    <!-- استدعاء ملفات التنسيق -->
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="dashboard.css"> <!-- ملف تنسيق خاص بالواجهة -->
+    <link rel="stylesheet" href="dashboard.css"> 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body class="dark-theme">
 
     <div class="glass-box dashboard-container">
-        <!-- القائمة الجانبية -->
+        <!-- القائمة الجانبية (Sidebar) -->
         <aside class="sidebar">
             <div class="user-profile">
                 <div class="logo-holder" onclick="ui.uploadLogo()">
@@ -32,10 +33,10 @@
             <button class="btn-logout" onclick="auth.logout()">تسجيل الخروج</button>
         </aside>
 
-        <!-- المحتوى الرئيسي -->
+        <!-- المحتوى الرئيسي (Main Content) -->
         <main class="main-content">
             
-            <!-- قسم الحاسبة -->
+            <!-- 1. قسم الحاسبة -->
             <section id="calc-tab" class="tab-content active">
                 <h2 class="neon-text">حاسبة الفواتير</h2>
                 <div class="form-grid">
@@ -58,7 +59,32 @@
                 </div>
             </section>
 
-            <!-- قسم تليجرام الذكي -->
+            <!-- 2. قسم إدارة المواد -->
+            <section id="items-tab" class="tab-content">
+                <h2 class="neon-text">📦 إدارة المواد والمنتجات</h2>
+                <div class="form-grid">
+                    <input type="text" id="itemName" class="input-field" placeholder="اسم المنتج (مثلاً: قلم، ورق..)">
+                    <input type="number" id="itemPrice" class="input-field" placeholder="السعر">
+                    <button class="button-submit" onclick="itemsManager.add()">إضافة للمسودة +</button>
+                </div>
+                
+                <div class="items-container">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>المنتج</th>
+                                <th>السعر</th>
+                                <th>حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsBody">
+                            <!-- المواد تظهر هنا تلقائياً عبر JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 3. قسم تليجرام الذكي -->
             <section id="tg-tab" class="tab-content">
                 <h2 class="neon-text">ربط تليجرام الذكي</h2>
                 <div class="tg-card">
@@ -83,14 +109,45 @@
                 </div>
             </section>
 
-            <!-- الأقسام الأخرى (ستبرمج تباعاً) -->
-            <section id="items-tab" class="tab-content"><h2>إدارة المواد</h2><div id="itemsList"></div></section>
-            <section id="reports-tab" class="tab-content"><h2>التقارير المالية</h2></section>
-            <section id="settings-tab" class="tab-content"><h2>إعدادات النظام</h2></section>
+            <!-- 4. قسم التقارير المالية -->
+            <section id="reports-tab" class="tab-content">
+                <h2 class="neon-text">📊 التقارير التفصيلية</h2>
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <p>إجمالي الفواتير</p>
+                        <h2 id="repTotalInvoices">0</h2>
+                    </div>
+                    <div class="report-card">
+                        <p>إجمالي الصفحات</p>
+                        <h2 id="repTotalPages">0</h2>
+                    </div>
+                    <div class="report-card">
+                        <p>إجمالي الأرباح</p>
+                        <h2 id="repTotalMoney">0 د.ع</h2>
+                    </div>
+                </div>
+                <div class="info-footer">
+                    <p>تاريخ إنشاء الحساب: <span id="repJoinDate">--/--/----</span></p>
+                    <p>اسم المتجر: <span id="repStoreName">---</span></p>
+                </div>
+            </section>
+
+            <!-- 5. قسم الإعدادات -->
+            <section id="settings-tab" class="tab-content">
+                <h2 class="neon-text">⚙️ إعدادات النظام</h2>
+                <div class="form-grid">
+                    <label>سعر الصفحة الافتراضي</label>
+                    <input type="number" id="settingDefaultPrice" class="input-field" value="250">
+                    <label>ضريبة الخدمات (%)</label>
+                    <input type="number" id="settingTax" class="input-field" value="0">
+                    <button class="button-submit" onclick="ui.saveSettings()">حفظ الإعدادات</button>
+                </div>
+            </section>
 
         </main>
     </div>
 
+    <!-- استدعاء ملفات البرمجة -->
     <script src="script.js"></script>
     <script src="dashboard.js"></script>
 </body>
