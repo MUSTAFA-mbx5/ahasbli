@@ -4,7 +4,7 @@
  */
 
 // --- الإعدادات العامة ---
-const SCRIPT_URL = "رابط_جوجل_سكريبت_الخاص_بك"; // تأكد من وضع الرابط الصحيح هنا
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyKZk-rCkPHH8bYCnU4vl6YmATxgrCvylPaMgoIFtq3jjtIIx3HiejHXaVBALOj81qT/exec"; // تأكد من وضع الرابط الصحيح هنا
 
 // الحالة المؤقتة للبرنامج (State)
 let appState = {
