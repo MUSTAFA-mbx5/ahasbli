@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أحسبلي | لوحة التحكم</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css"> <!-- ملف تنسيق خاص بالواجهة -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+
+    <div class="glass-box dashboard-container">
+        <!-- القائمة الجانبية -->
+        <aside class="sidebar">
+            <div class="user-profile">
+                <div class="logo-holder" onclick="ui.uploadLogo()">
+                    <img id="displayLogo" src="" style="display:none;">
+                    <span id="plusIcon">+</span>
+                </div>
+                <h3 id="sidebarLibName">اسم المكتبة</h3>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-btn active" onclick="ui.showTab('calc-tab')">🧾 الحاسبة</button>
+                <button class="nav-btn" onclick="ui.showTab('items-tab')">📦 المواد</button>
+                <button class="nav-btn" onclick="ui.showTab('tg-tab')">🤖 تليجرام الذكي</button>
+                <button class="nav-btn" onclick="ui.showTab('reports-tab')">📊 التقارير</button>
+                <button class="nav-btn" onclick="ui.showTab('settings-tab')">⚙️ الإعدادات</button>
+            </nav>
+
+            <button class="btn-logout" onclick="auth.logout()">تسجيل الخروج</button>
+        </aside>
+
+        <!-- المحتوى الرئيسي -->
+        <main class="main-content">
+            
+            <!-- قسم الحاسبة -->
+            <section id="calc-tab" class="tab-content active">
+                <h2 class="neon-text">حاسبة الفواتير</h2>
+                <div class="form-grid">
+                    <input type="text" id="docName" class="input-field" placeholder="اسم الملف (اختياري)">
+                    <div class="flex-row">
+                        <input type="number" id="pageFrom" class="input-field" placeholder="من صفحة">
+                        <input type="number" id="pageTo" class="input-field" placeholder="إلى صفحة">
+                    </div>
+                    <input type="number" id="pageTotal" class="input-field" placeholder="أو العدد الإجمالي للصفحات">
+                </div>
+
+                <!-- معاينة الفاتورة النيون -->
+                <div class="invoice-preview">
+                    <p>المجموع النهائي</p>
+                    <h1 id="finalTotal" class="total-amount">0 د.ع</h1>
+                    <div class="action-btns">
+                        <button class="button-submit" onclick="calc.run()">أحسب</button>
+                        <button class="btn-ghost" onclick="calc.print()">طباعة 🖨️</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- قسم تليجرام الذكي -->
+            <section id="tg-tab" class="tab-content">
+                <h2 class="neon-text">ربط تليجرام الذكي</h2>
+                <div class="tg-card">
+                    <div class="status-bar">الحالة: <span id="tgStatus" class="status-off">غير متصل</span></div>
+                    <input type="text" id="tgPhoneInput" class="input-field" placeholder="أدخل رقم الهاتف">
+                    <button class="button-submit" onclick="tg.connect()">ربط الحساب</button>
+                </div>
+                
+                <div class="features-grid" id="tgFeatures" style="opacity: 0.5; pointer-events: none;">
+                    <div class="feature-item">
+                        <span>الرد بالذكاء الاصطناعي</span>
+                        <label class="switch"><input type="checkbox" id="featAI"><span class="slider"></span></label>
+                    </div>
+                    <div class="feature-item">
+                        <span>الترحيب التلقائي</span>
+                        <label class="switch"><input type="checkbox" id="featWelcome"><span class="slider"></span></label>
+                    </div>
+                    <div class="feature-item">
+                        <span>إذاعة جماعية</span>
+                        <button class="btn-danger" onclick="tg.broadcast()">بث 📢</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- الأقسام الأخرى (ستبرمج تباعاً) -->
+            <section id="items-tab" class="tab-content"><h2>إدارة المواد</h2><div id="itemsList"></div></section>
+            <section id="reports-tab" class="tab-content"><h2>التقارير المالية</h2></section>
+            <section id="settings-tab" class="tab-content"><h2>إعدادات النظام</h2></section>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
