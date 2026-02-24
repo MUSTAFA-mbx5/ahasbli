@@ -1,4 +1,5 @@
 const auth = {
+    // وظيفة تسجيل الدخول
     login: async () => {
         const user = document.getElementById('loginUser').value;
         const pass = document.getElementById('loginPass').value;
@@ -9,9 +10,54 @@ const auth = {
         }
 
         console.log("جاري محاولة تسجيل الدخول لـ:", user);
-        
-        // هنا سنضيف كود fetch لاحقاً لربطه مع جوجل سكريبت
-        // حالياً سننتقل للواجهة الرئيسية كمثال
+
+        // هنا يمكن إضافة كود fetch لاحقاً لربطه مع Google Apps Script
+        // مثال:
+        /*
+        const response = await fetch('رابط_جوجل_سكريبت', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: "login", user, pass })
+        });
+        */
         // window.location.href = 'dashboard.html';
+    },
+
+    // وظيفة إنشاء الحساب
+    signup: async () => {
+        const name = document.getElementById('regName').value;
+        const lib = document.getElementById('regLib').value;
+        const phone = document.getElementById('regPhone').value;
+        const addr = document.getElementById('regAddr').value;
+
+        if (!name || !lib || !phone || !addr) {
+            alert("يرجى ملأ جميع الحقول");
+            return;
+        }
+
+        const userData = {
+            action: "signup",
+            name: name,
+            library: lib,
+            phone: phone,
+            address: addr
+        };
+
+        console.log("جاري إرسال طلب التسجيل لبوت التليجرام...");
+
+        try {
+            const response = await fetch('رابط_جوجل_سكريبت_الخاص_بك', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+
+            alert("تم إرسال معلوماتك! سيقوم البوت الآن بإنشاء حسابك وإرسال قائمة الاشتراكات.");
+            window.location.href = "https://t.me/mb4x_bot"; 
+
+        } catch (error) {
+            console.error("خطأ في الاتصال:", error);
+            alert("حدث خطأ أثناء الإرسال، تأكد من الاتصال بالإنترنت.");
+        }
     }
 };
