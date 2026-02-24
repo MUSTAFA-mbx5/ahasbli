@@ -46,7 +46,7 @@ const auth = {
         console.log("جاري إرسال طلب التسجيل لبوت التليجرام...");
 
         try {
-            const response = await fetch('رابط_جوجل_سكريبت_الخاص_بك', {
+            const response = await fetch('https://script.google.com/macros/s/AKfycbyKZk-rCkPHH8bYCnU4vl6YmATxgrCvylPaMgoIFtq3jjtIIx3HiejHXaVBALOj81qT/exec', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
